@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Falling Ball Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1e272e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: #dfe6e9;
+      border: 2px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="400" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let ballX = Math.random() * 380;
+    let ballY = 0;
+    let ballRadius = 15;
+    let ballSpeed = 2;
+
+    let paddleWidth = 80;
+    let paddleHeight = 10;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+    let paddleSpeed = 30;
+
+    let score = 0;
+    let gameOver = false;
+
+    // कीबोर्ड कंट्रोल
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && paddleX > 0) {
+        paddleX -= paddleSpeed;
+      }
+      if (e.key === "ArrowRight" && paddleX < canvas.width - paddleWidth) {
+        paddleX += paddleSpeed;
+      }
+    });
+
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "red";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function drawPaddle() {
+      ctx.fillStyle = "blue";
+      ctx.fillRect(paddleX, canvas.height - paddleHeight - 10, paddleWidth, paddleHeight);
+    }
+
+    function drawScore() {
+      ctx.font = "20px Arial";
+      ctx.fillStyle = "black";
+      ctx.fillText("Score: " + score, 10, 20);
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawBall();
+      drawPaddle();
+      drawScore();
+
+      ballY += ballSpeed;
+
+      // अगर बॉल paddle पर गिरे
+      if (
+        ballY + ballRadius >= canvas.height - paddleHeight - 10 &&
+        ballX >= paddleX &&
+        ballX <= paddleX + paddleWidth
+      ) {
+        score++;
+        ballY = 0;
+        ballX = Math.random() * (canvas.width - ballRadius * 2) + ballRadius;
+        ballSpeed += 0.3; // हर बार speed तेज
+      }
+
+      // अगर बॉल नीचे गिर गई
+      if (ballY > canvas.height) {
+        gameOver = true;
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "black";
+        ctx.fillText("Game Over! Final Score: " + score, 30, canvas.height / 2);
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    update();
+  </script>
+</body>
+</html>
